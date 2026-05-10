@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google Sign-In Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: #0a0a0f;
+            color: white;
+        }
+        .container {
+            text-align: center;
+            padding: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+        }
+        button {
+            padding: 16px 32px;
+            font-size: 18px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .google-btn {
+            background: white;
+            color: #333;
+        }
+        .logout-btn {
+            background: #ef4444;
+            color: white;
+        }
+        #userInfo {
+            margin-top: 24px;
+            padding: 20px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+        }
+        img {
+            border-radius: 50%;
+            margin-top: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Google Sign-In Test</h1>
+        
+        <div id="loggedOut">
+            <button class="google-btn" onclick="signInWithGoogle()">
+                🚀 Sign in with Google
+            </button>
+        </div>
+
+        <div id="loggedIn" style="display:none;">
+            <div id="userInfo"></div>
+            <button class="logout-btn" onclick="logout()">
+                Logout
+            </button>
+        </div>
+        
+        <div id="error" style="color: #ef4444; margin-top: 16px;"></div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
+    <script>
+        // PASTE YOUR FIREBASE CONFIG HERE
+        const firebaseConfig = {
+  apiKey: "AIzaSyCGGAZJ0YahVHsv2sIfuo0Y9r99Gij9r4E",
+  authDomain: "image-editor-site.firebaseapp.com",
+  projectId: "image-editor-site",
+  storageBucket: "image-editor-site.firebasestorage.app",
+  messagingSenderId: "958806881512",
+  appId: "1:958806881512:web:a76a7c71391a154b0d855d"
+};
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const provider = new firebase.auth.GoogleAuthProvider();
+
+        // Check if user is already logged in
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                document.getElementById('loggedOut').style.display = 'none';
+                document.getElementById('loggedIn').style.display = 'block';
+                document.getElementById('userInfo').innerHTML = `
+                    <h2>✅ Logged In!</h2>
+                    <p><strong>Name:</strong> ${user.displayName}</p>
+                    <p><strong>Email:</strong> ${user.email}</p>
+                    <img src="${user.photoURL}" width="80" alt="Profile">
+                `;
+            } else {
+                document.getElementById('loggedOut').style.display = 'block';
+                document.getElementById('loggedIn').style.display = 'none';
+            }
+        });
+
+        // Google Sign-In
+        function signInWithGoogle() {
+            auth.signInWithPopup(provider)
+                .then((result) => {
+                    console.log('Signed in!', result.user);
+                })
+                .catch((error) => {
+                    document.getElementById('error').innerText = 
+                        '❌ Error: ' + error.message;
+                    console.error(error);
+                });
+        }
+
+        // Logout
+        function logout() {
+            auth.signOut().then(() => {
+                console.log('Signed out');
+            }).catch((error) => {
+                console.error('Logout error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
